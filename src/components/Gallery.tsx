@@ -8,11 +8,11 @@ import { DragDropContext, Droppable, Draggable } from "@hello-pangea/dnd";
 import type { DropResult } from "@hello-pangea/dnd";
 import toast from "react-hot-toast";
 
-const LS_KEY = "digitala_images";
+const STORAGE_KEY = "image_gallery_items";
 
 function getInitialImages(): ImageData[] {
-  const ls = localStorage.getItem(LS_KEY);
-  return ls ? JSON.parse(ls) : initialImages;
+  const savedImages = localStorage.getItem(STORAGE_KEY);
+  return savedImages ? JSON.parse(savedImages) : initialImages;
 }
 
 export default function Gallery() {
@@ -23,7 +23,7 @@ export default function Gallery() {
   const [uploading, setUploading] = useState(false);
 
   useEffect(() => {
-    localStorage.setItem(LS_KEY, JSON.stringify(images));
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(images));
   }, [images]);
 
   const filtered = images.filter((img) =>
@@ -80,7 +80,6 @@ export default function Gallery() {
     reader.readAsDataURL(file);
   };
 
-  // Drag & Drop reorder
   const onDragEnd = (result: DropResult) => {
     if (!result.destination) return;
     const reordered = Array.from(filtered);
@@ -88,7 +87,6 @@ export default function Gallery() {
     reordered.splice(result.destination.index, 0, removed);
 
     if (filtered.length !== images.length) {
-      // Actualiza sólo el subset filtrado en el array global
       const newImages = [...images];
       const filteredIndexes = images
         .map((img, idx) => (filtered.find((f) => f.id === img.id) ? idx : -1))

@@ -1,54 +1,85 @@
-# React + TypeScript + Vite
+# Image Gallery App
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+A responsive image gallery built with **React**, **TypeScript**, **Vite**, **Tailwind CSS**, **Framer Motion**, and **Drag and Drop**.
 
-Currently, two official plugins are available:
+The app allows users to upload images, search through the gallery, edit image details, delete items, reorder cards with drag and drop, and persist data locally using the browser storage.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+## Features
 
-## Expanding the ESLint configuration
+- Upload images from the local device.
+- Search images by title or description.
+- Edit image title and description.
+- Delete images from the gallery.
+- Reorder images with drag and drop.
+- Persist gallery data in local storage.
+- Toggle between light and dark mode.
+- Display image details in a modal.
+- Show animated interactions with Framer Motion.
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+## Tech Stack
 
-```js
-export default tseslint.config({
-  extends: [
-    // Remove ...tseslint.configs.recommended and replace with this
-    ...tseslint.configs.recommendedTypeChecked,
-    // Alternatively, use this for stricter rules
-    ...tseslint.configs.strictTypeChecked,
-    // Optionally, add this for stylistic rules
-    ...tseslint.configs.stylisticTypeChecked,
-  ],
-  languageOptions: {
-    // other options...
-    parserOptions: {
-      project: ['./tsconfig.node.json', './tsconfig.app.json'],
-      tsconfigRootDir: import.meta.dirname,
-    },
-  },
-})
+- React 19
+- TypeScript
+- Vite
+- Tailwind CSS 4
+- Framer Motion
+- @hello-pangea/dnd
+- React Hot Toast
+- Lucide React
+
+## Installation
+
+Clone the repository:
+
+```bash
+git clone https://github.com/NoisGit/image-gallery-app.git
+cd image-gallery-app
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+Install dependencies:
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
-
-export default tseslint.config({
-  plugins: {
-    // Add the react-x and react-dom plugins
-    'react-x': reactX,
-    'react-dom': reactDom,
-  },
-  rules: {
-    // other rules...
-    // Enable its recommended typescript rules
-    ...reactX.configs['recommended-typescript'].rules,
-    ...reactDom.configs.recommended.rules,
-  },
-})
+```bash
+npm install
 ```
+
+Run the development server:
+
+```bash
+npm run dev
+```
+
+## Available Scripts
+
+```bash
+npm run dev
+npm run build
+npm run lint
+npm run preview
+```
+
+## Project Structure
+
+```text
+src/
+├── components/
+├── context/
+├── data/
+├── assets/
+├── App.tsx
+└── main.tsx
+```
+
+## Roadmap
+
+- Add image categories.
+- Add favorite images.
+- Add image metadata.
+- Add import/export support.
+- Add automated tests.
+- Add CI workflow.
+- Improve accessibility.
+- Improve mobile layout.
+
+## Author
+
+Developed by [NoisGit](https://github.com/NoisGit).
