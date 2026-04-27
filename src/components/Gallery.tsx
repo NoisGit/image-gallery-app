@@ -60,7 +60,9 @@ export default function Gallery() {
     const reader = new FileReader();
     reader.onloadend = () => {
       const isDuplicate = images.some(
-        img => img.title === file.name.replace(/\.\w+$/, "") && img.url === reader.result
+        (img) =>
+          img.title === file.name.replace(/\.\w+$/, "") &&
+          img.url === reader.result
       );
       if (isDuplicate) {
         toast.error("¡Esta imagen ya fue subida!");
@@ -136,7 +138,18 @@ export default function Gallery() {
               </motion.span>
             ) : (
               <>
-                <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5" fill="none" viewBox="0 0 24 24"><path stroke="currentColor" strokeWidth="2" d="M12 16V4m0 0L8 8m4-4 4 4M4 20h16"/></svg>
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  className="w-5 h-5"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    d="M12 16V4m0 0L8 8m4-4 4 4M4 20h16"
+                  />
+                </svg>
                 Subir imagen
               </>
             )}
@@ -184,33 +197,34 @@ export default function Gallery() {
                           index={idx}
                         >
                           {(draggableProvided, snapshot) => (
-                            <motion.div
-                              layout
-                              initial={{ opacity: 0, scale: 0.97, y: 18 }}
-                              animate={{
-                                opacity: 1,
-                                scale: snapshot.isDragging ? 1.06 : 1,
-                                y: 0,
-                                boxShadow: snapshot.isDragging
-                                  ? "0 6px 40px 0 #fbc2eb99"
-                                  : "0 2px 12px 0 #e9a9ea11"
-                              }}
-                              exit={{ opacity: 0, scale: 0.97, y: 18 }}
-                              transition={{ duration: 0.18 }}
+                            <div
                               ref={draggableProvided.innerRef}
                               {...draggableProvided.draggableProps}
                               {...draggableProvided.dragHandleProps}
                               style={{
                                 ...draggableProvided.draggableProps.style,
                                 zIndex: snapshot.isDragging ? 30 : 1,
-                                cursor: snapshot.isDragging
-                                  ? "grabbing"
-                                  : "grab"
+                                cursor: snapshot.isDragging ? "grabbing" : "grab",
                               }}
                               onClick={() => openModal(img)}
                             >
-                              <ImageCard image={img} />
-                            </motion.div>
+                              <motion.div
+                                layout
+                                initial={{ opacity: 0, scale: 0.97, y: 18 }}
+                                animate={{
+                                  opacity: 1,
+                                  scale: snapshot.isDragging ? 1.06 : 1,
+                                  y: 0,
+                                  boxShadow: snapshot.isDragging
+                                    ? "0 6px 40px 0 #fbc2eb99"
+                                    : "0 2px 12px 0 #e9a9ea11",
+                                }}
+                                exit={{ opacity: 0, scale: 0.97, y: 18 }}
+                                transition={{ duration: 0.18 }}
+                              >
+                                <ImageCard image={img} />
+                              </motion.div>
+                            </div>
                           )}
                         </Draggable>
                       ))
