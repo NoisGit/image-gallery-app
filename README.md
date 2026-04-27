@@ -32,8 +32,8 @@ The app allows users to upload images, search through the gallery, edit image de
 Clone the repository:
 
 ```bash
-git clone https://github.com/NoisGit/mi-demo-digitala.git
-cd mi-demo-digitala
+git clone https://github.com/NoisGit/image-gallery-app.git
+cd image-gallery-app
 ```
 
 Install dependencies:
