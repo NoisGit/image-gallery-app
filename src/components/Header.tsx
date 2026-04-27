@@ -9,7 +9,6 @@ export default function Header() {
       <div className="max-w-6xl mx-auto flex items-center justify-between px-6 sm:px-12" style={{ height: "72px" }}>
         <div className="flex items-center gap-2">
           <span className="flex items-center" style={{ lineHeight: 1, marginBottom: "2px" }}>
-            {/* SVG cámara alineada */}
             <svg width="34" height="34" viewBox="0 0 24 24" fill="none" style={{ display: "block" }}>
               <rect x="3" y="7" width="18" height="12" rx="2.5" fill="#eee" />
               <rect x="1" y="5" width="22" height="16" rx="3" fill="#a78bfa" />
@@ -19,7 +18,7 @@ export default function Header() {
             </svg>
           </span>
           <span className="font-black text-2xl sm:text-3xl tracking-tight text-pink-500 select-none" style={{ lineHeight: 1, paddingTop: "2px" }}>
-            Galería Digitala
+            Image Gallery
           </span>
         </div>
         <button
