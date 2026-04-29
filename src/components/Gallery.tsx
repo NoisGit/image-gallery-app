@@ -4,7 +4,7 @@ import { DragDropContext, Draggable, Droppable } from "@hello-pangea/dnd";
 import type { DropResult } from "@hello-pangea/dnd";
 import { AnimatePresence, motion } from "framer-motion";
 import toast from "react-hot-toast";
-import { images as initialImages, type ImageData } from "../data/images";
+import { DEMO_IMAGES_VERSION, images as initialImages, type ImageData } from "../data/images";
 import {
   CATEGORY_OPTIONS,
   DEFAULT_CATEGORY,
@@ -31,7 +31,7 @@ type DeletedImage = {
 };
 
 export default function Gallery() {
-  const [initialState] = useState(() => loadImagesFromStorage(STORAGE_KEY, initialImages));
+  const [initialState] = useState(() => loadImagesFromStorage(STORAGE_KEY, initialImages, DEMO_IMAGES_VERSION));
   const [images, setImages] = useState<ImageData[]>(initialState.images);
   const [search, setSearch] = useState("");
   const [categoryFilter, setCategoryFilter] = useState<Category | "all">("all");
@@ -71,7 +71,7 @@ export default function Gallery() {
 
   useEffect(() => {
     if (!storageRecovered) return;
-    toast.error("Se restauró la galería porque había datos guardados inválidos.");
+    toast.error("Se restauró la galería porque había datos guardados inválidos o una demo antigua.");
     setStorageRecovered(false);
   }, [storageRecovered]);
 
