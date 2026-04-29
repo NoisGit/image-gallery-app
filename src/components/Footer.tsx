@@ -1,41 +1,29 @@
 export default function Footer() {
   return (
-    <footer className="w-full py-5 mt-auto bg-zinc-900/90 dark:bg-zinc-950/90 border-t border-zinc-800 text-zinc-300 flex flex-col sm:flex-row items-center justify-center gap-4 sm:gap-10 text-sm">
-      <span className="font-semibold">© {new Date().getFullYear()} Image Gallery App</span>
-      <div className="flex gap-5">
-        <a
-          href="https://github.com/NoisGIT"
-          target="_blank"
-          rel="noopener noreferrer"
-          className="hover:text-pink-400 transition"
-          aria-label="GitHub"
-        >
-          <svg width="22" height="22" fill="currentColor" viewBox="0 0 24 24">
-            <path d="M12 2C6.477 2 2 6.484 2 12.021c0 4.428 2.867 8.183 6.839 9.504.5.09.682-.216.682-.481 0-.237-.008-.868-.013-1.703-2.782.604-3.37-1.34-3.37-1.34-.454-1.157-1.11-1.465-1.11-1.465-.908-.62.069-.608.069-.608 1.004.071 1.532 1.033 1.532 1.033.892 1.528 2.341 1.087 2.91.832.09-.646.35-1.087.636-1.338-2.221-.253-4.555-1.114-4.555-4.951 0-1.093.39-1.987 1.029-2.687-.103-.253-.447-1.273.098-2.656 0 0 .84-.27 2.75 1.025A9.564 9.564 0 0 1 12 6.844a9.61 9.61 0 0 1 2.506.338c1.91-1.295 2.748-1.025 2.748-1.025.547 1.383.203 2.403.1 2.656.64.7 1.028 1.594 1.028 2.687 0 3.847-2.337 4.696-4.566 4.944.36.31.682.924.682 1.863 0 1.345-.012 2.429-.012 2.758 0 .267.18.576.688.478C19.137 20.2 22 16.447 22 12.021 22 6.484 17.523 2 12 2z"/>
-          </svg>
-        </a>
-        <a
-          href="https://www.linkedin.com/in/borisalvialv/"
-          target="_blank"
-          rel="noopener noreferrer"
-          className="hover:text-pink-400 transition"
-          aria-label="LinkedIn"
-        >
-          <svg width="22" height="22" fill="currentColor" viewBox="0 0 24 24">
-            <path d="M4.98 3.5C3.32 3.5 2 4.82 2 6.48c0 1.64 1.3 2.98 2.96 2.98h.03c1.67 0 2.98-1.34 2.98-2.98C7.97 4.82 6.65 3.5 4.98 3.5zM2.4 21.5h5.17v-9.54H2.4v9.54zM9.61 12.1v9.4h5.17v-5.22c0-1.34.03-3.06 1.87-3.06 1.86 0 2.15 1.45 2.15 2.95v5.33h5.17v-5.72c0-2.76-.59-4.89-3.77-4.89-1.54 0-2.58.85-3.01 1.65h-.04v-1.41H9.61zm-4.81 0H4.8v9.4h5.17v-9.4z"/>
-          </svg>
-        </a>
-        <a
-          href="https://www.instagram.com/Nois.DeuS"
-          target="_blank"
-          rel="noopener noreferrer"
-          className="hover:text-pink-400 transition"
-          aria-label="Instagram"
-        >
-          <svg width="22" height="22" fill="currentColor" viewBox="0 0 24 24">
-            <path d="M12 2.163c3.204 0 3.584.012 4.849.07 1.366.062 2.633.336 3.608 1.311.975.975 1.249 2.242 1.311 3.608.058 1.265.069 1.645.069 4.849s-.012 3.584-.07 4.849c-.062 1.366-.336 2.633-1.311 3.608-.975.975-2.242 1.249-3.608 1.311-1.265.058-1.645.069-4.849.069s-3.584-.012-4.849-.07c-1.366-.062-2.633-.336-3.608-1.311-.975-.975-1.249-2.242-1.311-3.608C2.175 15.646 2.163 15.266 2.163 12s.012-3.584.07-4.849c.062-1.366.336-2.633 1.311-3.608.975-.975 2.242-1.249 3.608-1.311C8.416 2.175 8.796 2.163 12 2.163zm0-2.163C8.741 0 8.333.015 7.052.073 5.771.131 4.635.385 3.678 1.343c-.957.957-1.211 2.093-1.269 3.374C2.015 5.667 2 6.076 2 12s.015 6.333.073 7.605c.058 1.281.312 2.417 1.269 3.374.957.957 2.093 1.211 3.374 1.269C8.333 23.985 8.741 24 12 24s3.667-.015 4.948-.073c1.281-.058 2.417-.312 3.374-1.269.957-.957 1.211-2.093 1.269-3.374.058-1.272.073-1.681.073-7.605s-.015-6.333-.073-7.605c-.058-1.281-.312-2.417-1.269-3.374C19.365.385 18.229.131 16.948.073 15.667.015 15.259 0 12 0zm0 5.838a6.162 6.162 0 1 0 0 12.324 6.162 6.162 0 0 0 0-12.324zm0 10.162a3.999 3.999 0 1 1 0-7.997 3.999 3.999 0 0 1 0 7.997zm6.406-11.845a1.44 1.44 0 1 0 0 2.882 1.44 1.44 0 0 0 0-2.882z"/>
-          </svg>
-        </a>
+    <footer className="mt-auto w-full border-t border-white/60 bg-white/70 py-6 text-sm text-zinc-500 backdrop-blur-xl dark:border-zinc-800 dark:bg-zinc-950/70 dark:text-zinc-400">
+      <div className="mx-auto flex max-w-7xl flex-col items-center justify-between gap-4 px-4 text-center sm:flex-row sm:px-6 lg:px-8">
+        <span className="font-semibold">
+          © {new Date().getFullYear()} Image Gallery App · Hecho con React, TypeScript y Vite
+        </span>
+
+        <div className="flex items-center gap-4">
+          <a
+            href="https://github.com/NoisGit/image-gallery-app"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="font-black text-zinc-700 transition hover:text-pink-500 dark:text-zinc-200"
+          >
+            GitHub
+          </a>
+          <a
+            href="https://www.linkedin.com/in/borisalvialv/"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="font-black text-zinc-700 transition hover:text-pink-500 dark:text-zinc-200"
+          >
+            LinkedIn
+          </a>
+        </div>
       </div>
     </footer>
   );

@@ -1,84 +1,68 @@
 # Image Gallery App
 
-A responsive image gallery built with **React**, **TypeScript**, **Vite**, **Tailwind CSS**, **Framer Motion**, and **Drag and Drop**.
-
-The app allows users to upload images, search through the gallery, edit image details, delete items, reorder cards with drag and drop, and persist data locally using the browser storage.
+Portfolio-ready image gallery built with **React 19**, **TypeScript**, **Vite**, **Tailwind CSS 4**, **Framer Motion**, drag and drop, and local browser persistence.
 
 ## Features
 
-- Upload images from the local device.
-- Search images by title or description.
-- Edit image title and description.
-- Delete images from the gallery.
-- Reorder images with drag and drop.
-- Persist gallery data in local storage.
-- Toggle between light and dark mode.
-- Display image details in a modal.
-- Show animated interactions with Framer Motion.
+- Responsive visual gallery with polished cards and animated interactions.
+- Upload images with file type and size validation.
+- Search by title, description, and category.
+- Filter by category and favorite images.
+- Sort by manual order, title, recent upload, or favorites.
+- Edit title, description, and category in a detailed modal.
+- Show image metadata such as file name, size, type, dimensions, date, and favorite state.
+- Delete images with an undo action.
+- Import and export gallery backups as JSON.
+- Recover safely if localStorage contains invalid data.
+- Persist light and dark mode.
+- Run lint and build checks with GitHub Actions.
+- Deploy from `develop` with GitHub Pages Actions.
 
 ## Tech Stack
 
-- React 19
+- React
 - TypeScript
 - Vite
-- Tailwind CSS 4
+- Tailwind CSS
 - Framer Motion
 - @hello-pangea/dnd
 - React Hot Toast
-- Lucide React
+- GitHub Actions
 
-## Installation
+## Git Flow
 
-Clone the repository:
-
-```bash
-git clone https://github.com/NoisGit/image-gallery-app.git
-cd image-gallery-app
+```text
+main      -> production-ready branch
+develop   -> integration branch and GitHub Pages deploy source
+feature/* -> feature work branches
 ```
 
-Install dependencies:
+Recommended flow:
+
+```text
+feature/* -> develop -> main
+```
+
+## Deployment
+
+GitHub Pages deploy is configured in `.github/workflows/deploy.yml` and runs on every push to `develop`.
+
+Expected site after the first successful deploy:
+
+```text
+https://noisgit.github.io/image-gallery-app/
+```
+
+If Pages is not enabled yet, set the repository Pages source to **GitHub Actions**.
+
+## Local Development
 
 ```bash
 npm install
-```
-
-Run the development server:
-
-```bash
 npm run dev
-```
-
-## Available Scripts
-
-```bash
-npm run dev
-npm run build
 npm run lint
-npm run preview
+npm run build
 ```
-
-## Project Structure
-
-```text
-src/
-├── components/
-├── context/
-├── data/
-├── assets/
-├── App.tsx
-└── main.tsx
-```
-
-## Roadmap
-
-- Add image categories.
-- Add favorite images.
-- Add image metadata.
-- Add import/export support.
-- Add automated tests.
-- Add CI workflow.
-- Improve accessibility.
-- Improve mobile layout.
 
 ## Author
 

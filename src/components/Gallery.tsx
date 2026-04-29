@@ -1,251 +1,471 @@
-import { useState, useEffect } from "react";
-import type { ChangeEvent } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
+import type { ChangeEvent, KeyboardEvent } from "react";
+import { DragDropContext, Draggable, Droppable } from "@hello-pangea/dnd";
+import type { DropResult } from "@hello-pangea/dnd";
+import { AnimatePresence, motion } from "framer-motion";
+import toast from "react-hot-toast";
 import { images as initialImages, type ImageData } from "../data/images";
+import {
+  CATEGORY_OPTIONS,
+  DEFAULT_CATEGORY,
+  getErrorMessage,
+  getTitleFromFileName,
+  loadImagesFromStorage,
+  normalizeImages,
+  sanitizeText,
+  saveImagesToStorage,
+  sortImages,
+  validateImageDetails,
+  validateImageFile,
+} from "../utils/gallery";
+import type { Category, SortMode } from "../utils/gallery";
 import ImageCard from "./ImageCard";
 import ImageModal from "./ImageModal";
-import { motion, AnimatePresence } from "framer-motion";
-import { DragDropContext, Droppable, Draggable } from "@hello-pangea/dnd";
-import type { DropResult } from "@hello-pangea/dnd";
-import toast from "react-hot-toast";
 
 const STORAGE_KEY = "image_gallery_items";
 
-function getInitialImages(): ImageData[] {
-  const savedImages = localStorage.getItem(STORAGE_KEY);
-  return savedImages ? JSON.parse(savedImages) : initialImages;
+type DeletedImage = {
+  image: ImageData;
+  index: number;
+};
+
+function readFileAsDataUrl(file: File): Promise<string> {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(reader.result as string);
+    reader.onerror = () => reject(new Error("No se pudo leer la imagen."));
+    reader.readAsDataURL(file);
+  });
 }
 
 export default function Gallery() {
-  const [images, setImages] = useState<ImageData[]>(getInitialImages());
+  const [initialState] = useState(() => loadImagesFromStorage(STORAGE_KEY, initialImages));
+  const [images, setImages] = useState<ImageData[]>(initialState.images);
   const [search, setSearch] = useState("");
+  const [categoryFilter, setCategoryFilter] = useState<Category | "all">("all");
+  const [sortMode, setSortMode] = useState<SortMode>("manual");
+  const [showFavoritesOnly, setShowFavoritesOnly] = useState(false);
   const [modalOpen, setModalOpen] = useState(false);
-  const [selectedImage, setSelectedImage] = useState<ImageData | null>(null);
+  const [selectedImageId, setSelectedImageId] = useState<number | null>(null);
   const [uploading, setUploading] = useState(false);
+  const [importing, setImporting] = useState(false);
+  const [storageRecovered, setStorageRecovered] = useState(initialState.recovered);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const importInputRef = useRef<HTMLInputElement>(null);
+  const storageErrorShownRef = useRef(false);
+  const lastDeletedRef = useRef<DeletedImage | null>(null);
+  const undoTimeoutRef = useRef<number | null>(null);
 
-  useEffect(() => {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(images));
-  }, [images]);
-
-  const filtered = images.filter((img) =>
-    (img.title + img.description).toLowerCase().includes(search.toLowerCase())
+  const selectedImage = useMemo(
+    () => images.find((image) => image.id === selectedImageId) ?? null,
+    [images, selectedImageId],
   );
 
-  const openModal = (img: ImageData) => {
-    setSelectedImage(img);
+  const displayedImages = useMemo(() => {
+    const query = search.trim().toLowerCase();
+    const filteredImages = images.filter((image) => {
+      const text = `${image.title} ${image.description} ${image.category ?? ""}`.toLowerCase();
+      const matchesText = text.includes(query);
+      const matchesCategory = categoryFilter === "all" || image.category === categoryFilter;
+      const matchesFavorite = !showFavoritesOnly || Boolean(image.isFavorite);
+      return matchesText && matchesCategory && matchesFavorite;
+    });
+
+    return sortImages(filteredImages, sortMode);
+  }, [categoryFilter, images, search, showFavoritesOnly, sortMode]);
+
+  const totalFavorites = images.filter((image) => image.isFavorite).length;
+  const hasActiveFilters = Boolean(search.trim()) || categoryFilter !== "all" || showFavoritesOnly;
+
+  useEffect(() => {
+    if (!storageRecovered) return;
+    toast.error("Se restauró la galería porque había datos guardados inválidos.");
+    setStorageRecovered(false);
+  }, [storageRecovered]);
+
+  useEffect(() => {
+    const error = saveImagesToStorage(STORAGE_KEY, images);
+    if (error && !storageErrorShownRef.current) {
+      toast.error(error);
+      storageErrorShownRef.current = true;
+    }
+  }, [images]);
+
+  useEffect(() => {
+    return () => {
+      if (undoTimeoutRef.current) window.clearTimeout(undoTimeoutRef.current);
+    };
+  }, []);
+
+  const resetUploadInput = () => {
+    if (fileInputRef.current) fileInputRef.current.value = "";
+  };
+
+  const resetImportInput = () => {
+    if (importInputRef.current) importInputRef.current.value = "";
+  };
+
+  const openModal = (image: ImageData) => {
+    setSelectedImageId(image.id);
     setModalOpen(true);
   };
 
-  const closeModal = () => setModalOpen(false);
-
-  const saveChanges = (id: number, newTitle: string, newDesc: string) => {
-    setImages((imgs) =>
-      imgs.map((img) =>
-        img.id === id ? { ...img, title: newTitle, description: newDesc } : img
-      )
-    );
-    toast.success("Cambios guardados");
+  const closeModal = () => {
     setModalOpen(false);
+    setSelectedImageId(null);
+  };
+
+  const saveChanges = (id: number, newTitle: string, newDescription: string, newCategory: Category) => {
+    const validation = validateImageDetails(newTitle, newDescription);
+    if (!validation.ok) {
+      toast.error(validation.message ?? "Revisa los datos de la imagen.");
+      return;
+    }
+
+    setImages((currentImages) =>
+      currentImages.map((image) =>
+        image.id === id
+          ? {
+              ...image,
+              title: sanitizeText(newTitle, 60),
+              description: sanitizeText(newDescription, 180),
+              category: newCategory,
+            }
+          : image,
+      ),
+    );
+
+    toast.success("Cambios guardados");
+    closeModal();
+  };
+
+  const restoreDeletedImage = () => {
+    const deleted = lastDeletedRef.current;
+    if (!deleted) return;
+
+    setImages((currentImages) => {
+      if (currentImages.some((image) => image.id === deleted.image.id)) return currentImages;
+      const restoredImages = [...currentImages];
+      restoredImages.splice(Math.min(deleted.index, restoredImages.length), 0, deleted.image);
+      return restoredImages;
+    });
+
+    lastDeletedRef.current = null;
+    toast.success("Imagen restaurada");
   };
 
   const deleteImage = (id: number) => {
-    setImages((imgs) => imgs.filter((img) => img.id !== id));
-    toast("Imagen eliminada", { icon: "🗑️" });
-    setModalOpen(false);
+    setImages((currentImages) => {
+      const imageIndex = currentImages.findIndex((image) => image.id === id);
+      if (imageIndex === -1) return currentImages;
+      lastDeletedRef.current = { image: currentImages[imageIndex], index: imageIndex };
+      return currentImages.filter((image) => image.id !== id);
+    });
+
+    if (undoTimeoutRef.current) window.clearTimeout(undoTimeoutRef.current);
+    undoTimeoutRef.current = window.setTimeout(() => {
+      lastDeletedRef.current = null;
+    }, 6500);
+
+    toast(
+      (toastItem) => (
+        <span className="flex items-center gap-3">
+          Imagen eliminada
+          <button
+            type="button"
+            onClick={() => {
+              restoreDeletedImage();
+              toast.dismiss(toastItem.id);
+            }}
+            className="rounded-full bg-zinc-950 px-3 py-1 text-xs font-bold text-white transition hover:bg-pink-600 dark:bg-white dark:text-zinc-950"
+          >
+            Deshacer
+          </button>
+        </span>
+      ),
+      { duration: 6000, icon: "🗑️" },
+    );
+
+    closeModal();
   };
 
-  const handleUpload = async (e: ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
+  const toggleFavorite = (id: number) => {
+    setImages((currentImages) =>
+      currentImages.map((image) => (image.id === id ? { ...image, isFavorite: !image.isFavorite } : image)),
+    );
+  };
+
+  const handleUpload = async (event: ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
     if (!file) return;
+
     setUploading(true);
-    const reader = new FileReader();
-    reader.onloadend = () => {
-      const isDuplicate = images.some(
-        (img) =>
-          img.title === file.name.replace(/\.\w+$/, "") &&
-          img.url === reader.result
-      );
-      if (isDuplicate) {
-        toast.error("¡Esta imagen ya fue subida!");
-        setUploading(false);
-        return;
-      }
+
+    try {
+      const validation = validateImageFile(file);
+      if (!validation.ok) throw new Error(validation.message);
+
+      const dataUrl = await readFileAsDataUrl(file);
+      const isDuplicate = images.some((image) => image.url === dataUrl || image.originalName === file.name);
+      if (isDuplicate) throw new Error("Esta imagen ya existe en la galería.");
+
       const newImage: ImageData = {
         id: Date.now(),
-        title: file.name.replace(/\.\w+$/, ""),
+        title: getTitleFromFileName(file.name),
         description: "Haz clic para editar la descripción.",
-        url: reader.result as string,
+        url: dataUrl,
+        category: "Personal",
+        isFavorite: false,
+        originalName: file.name,
+        size: file.size,
+        mimeType: file.type,
+        uploadedAt: new Date().toISOString(),
       };
-      setImages((imgs) => [newImage, ...imgs]);
+
+      setImages((currentImages) => [newImage, ...currentImages]);
       toast.success("Imagen subida");
+    } catch (error) {
+      toast.error(getErrorMessage(error));
+    } finally {
       setUploading(false);
+      resetUploadInput();
+    }
+  };
+
+  const exportGallery = () => {
+    const backup = {
+      app: "image-gallery-app",
+      version: 2,
+      exportedAt: new Date().toISOString(),
+      images,
     };
-    reader.readAsDataURL(file);
+    const blob = new Blob([JSON.stringify(backup, null, 2)], { type: "application/json;charset=utf-8" });
+    const url = URL.createObjectURL(blob);
+    const anchor = document.createElement("a");
+    anchor.href = url;
+    anchor.download = `image-gallery-backup-${new Date().toISOString().slice(0, 10)}.json`;
+    anchor.click();
+    URL.revokeObjectURL(url);
+    toast.success("Backup exportado");
+  };
+
+  const handleImport = async (event: ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    setImporting(true);
+
+    try {
+      const parsed = JSON.parse(await file.text()) as unknown;
+      const candidate = parsed && typeof parsed === "object" && "images" in parsed ? (parsed as { images: unknown }).images : parsed;
+      const importedImages = normalizeImages(candidate);
+      if (!Array.isArray(candidate) || (candidate.length > 0 && importedImages.length === 0)) {
+        throw new Error("El archivo no tiene una galería válida.");
+      }
+
+      setImages(importedImages);
+      toast.success(`Galería importada (${importedImages.length} imágenes)`);
+    } catch (error) {
+      toast.error(getErrorMessage(error));
+    } finally {
+      setImporting(false);
+      resetImportInput();
+    }
+  };
+
+  const clearFilters = () => {
+    setSearch("");
+    setCategoryFilter("all");
+    setShowFavoritesOnly(false);
+    setSortMode("manual");
   };
 
   const onDragEnd = (result: DropResult) => {
     if (!result.destination) return;
-    const reordered = Array.from(filtered);
+
+    if (sortMode !== "manual") {
+      toast.error("Vuelve al orden manual para arrastrar imágenes.");
+      return;
+    }
+
+    const reordered = Array.from(displayedImages);
     const [removed] = reordered.splice(result.source.index, 1);
     reordered.splice(result.destination.index, 0, removed);
 
-    if (filtered.length !== images.length) {
-      const newImages = [...images];
+    if (displayedImages.length !== images.length) {
+      const nextImages = [...images];
       const filteredIndexes = images
-        .map((img, idx) => (filtered.find((f) => f.id === img.id) ? idx : -1))
-        .filter((idx) => idx !== -1);
+        .map((image, index) => (displayedImages.some((item) => item.id === image.id) ? index : -1))
+        .filter((index) => index !== -1);
 
-      filteredIndexes.forEach((imgIdx, i) => {
-        newImages[imgIdx] = reordered[i];
+      filteredIndexes.forEach((imageIndex, index) => {
+        nextImages[imageIndex] = reordered[index];
       });
-      setImages(newImages);
+      setImages(nextImages);
     } else {
       setImages(reordered);
     }
+
     toast.success("Imágenes reordenadas");
   };
 
+  const handleCardKeyDown = (event: KeyboardEvent<HTMLDivElement>, image: ImageData) => {
+    if (event.key !== "Enter" && event.key !== " ") return;
+    event.preventDefault();
+    openModal(image);
+  };
+
   return (
-    <section className="w-full max-w-6xl mx-auto flex flex-col items-center justify-center">
-      <div className="w-full flex flex-col gap-2 mb-6">
-        <div className="w-full flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+    <section className="w-full max-w-7xl">
+      <motion.div
+        className="relative mb-8 overflow-hidden rounded-[2rem] border border-white/70 bg-white/75 p-6 shadow-2xl shadow-pink-200/40 backdrop-blur-xl dark:border-zinc-800 dark:bg-zinc-900/80 dark:shadow-black/40 sm:p-8"
+        initial={{ opacity: 0, y: 18 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.35 }}
+      >
+        <div className="pointer-events-none absolute -right-24 -top-24 h-56 w-56 rounded-full bg-pink-300/40 blur-3xl dark:bg-pink-700/30" />
+        <div className="pointer-events-none absolute -bottom-24 -left-24 h-56 w-56 rounded-full bg-violet-300/40 blur-3xl dark:bg-violet-700/30" />
+
+        <div className="relative grid gap-6 lg:grid-cols-[1.05fr_0.95fr] lg:items-end">
+          <div>
+            <span className="mb-3 inline-flex rounded-full bg-pink-100 px-4 py-1.5 text-xs font-black uppercase tracking-[0.2em] text-pink-700 dark:bg-pink-500/15 dark:text-pink-200">
+              Portfolio gallery
+            </span>
+            <h1 className="max-w-3xl text-4xl font-black tracking-tight text-zinc-950 dark:text-white sm:text-5xl">
+              Galería visual con filtros, favoritos y persistencia local.
+            </h1>
+            <p className="mt-4 max-w-2xl text-base leading-7 text-zinc-600 dark:text-zinc-300">
+              Sube imágenes, ordénalas, edita sus datos, respáldalas en JSON y mantén una experiencia cuidada para escritorio y mobile.
+            </p>
+          </div>
+
+          <div className="grid grid-cols-3 gap-3 text-center">
+            <StatCard label="Imágenes" value={images.length} />
+            <StatCard label="Favoritas" value={totalFavorites} />
+            <StatCard label="Visibles" value={displayedImages.length} />
+          </div>
+        </div>
+      </motion.div>
+
+      <div className="mb-8 rounded-[1.5rem] border border-white/70 bg-white/80 p-4 shadow-xl shadow-pink-100/50 backdrop-blur dark:border-zinc-800 dark:bg-zinc-900/75 dark:shadow-black/30 sm:p-5">
+        <div className="grid gap-3 lg:grid-cols-[1.3fr_0.8fr_0.8fr_auto]">
           <input
             type="text"
-            placeholder="Buscar imágenes..."
+            placeholder="Buscar por título, descripción o categoría..."
             value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            className="rounded-lg border border-zinc-300 dark:border-zinc-700 px-4 py-2.5
-                       bg-zinc-900 text-zinc-100 dark:bg-zinc-900 dark:text-zinc-100
-                       focus:outline-pink-400 transition shadow
-                       w-full sm:w-[370px] h-[46px] flex-shrink-0"
-            style={{ minHeight: 46, maxHeight: 46 }}
+            onChange={(event) => setSearch(event.target.value)}
+            className="h-12 w-full rounded-2xl border border-zinc-200 bg-white px-4 text-zinc-900 shadow-sm transition placeholder:text-zinc-400 focus:border-pink-400 focus:outline-none focus:ring-4 focus:ring-pink-200/70 dark:border-zinc-700 dark:bg-zinc-950 dark:text-zinc-100 dark:placeholder:text-zinc-500 dark:focus:ring-pink-500/20"
+            aria-label="Buscar imágenes"
           />
-          <motion.label
-            whileTap={{ scale: 0.96 }}
-            className="flex items-center justify-center gap-2 cursor-pointer px-5 py-2.5
-                      rounded-lg bg-pink-500 hover:bg-pink-600 text-white text-sm font-semibold
-                      transition shadow disabled:opacity-60 h-[46px] min-w-[160px] flex-shrink-0"
-            style={{ minHeight: 46, maxHeight: 46 }}
+
+          <select
+            value={categoryFilter}
+            onChange={(event) => setCategoryFilter(event.target.value as Category | "all")}
+            className="h-12 w-full rounded-2xl border border-zinc-200 bg-white px-4 text-zinc-900 shadow-sm transition focus:border-pink-400 focus:outline-none focus:ring-4 focus:ring-pink-200/70 dark:border-zinc-700 dark:bg-zinc-950 dark:text-zinc-100 dark:focus:ring-pink-500/20"
+            aria-label="Filtrar por categoría"
           >
-            {uploading ? (
-              <motion.span
-                key="loading"
-                initial={{ opacity: 0, scale: 0.95 }}
-                animate={{ opacity: 1, scale: 1 }}
-                exit={{ opacity: 0, scale: 0.95 }}
-                transition={{ duration: 0.15 }}
-              >
-                Cargando...
-              </motion.span>
-            ) : (
-              <>
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  className="w-5 h-5"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    stroke="currentColor"
-                    strokeWidth="2"
-                    d="M12 16V4m0 0L8 8m4-4 4 4M4 20h16"
-                  />
-                </svg>
-                Subir imagen
-              </>
+            <option value="all">Todas las categorías</option>
+            {CATEGORY_OPTIONS.map((category) => (
+              <option key={category} value={category}>{category}</option>
+            ))}
+          </select>
+
+          <select
+            value={sortMode}
+            onChange={(event) => setSortMode(event.target.value as SortMode)}
+            className="h-12 w-full rounded-2xl border border-zinc-200 bg-white px-4 text-zinc-900 shadow-sm transition focus:border-pink-400 focus:outline-none focus:ring-4 focus:ring-pink-200/70 dark:border-zinc-700 dark:bg-zinc-950 dark:text-zinc-100 dark:focus:ring-pink-500/20"
+            aria-label="Ordenar imágenes"
+          >
+            <option value="manual">Orden manual</option>
+            <option value="title">Título A-Z</option>
+            <option value="uploadedAt">Más recientes</option>
+            <option value="favorites">Favoritas primero</option>
+          </select>
+
+          <button
+            type="button"
+            onClick={() => setShowFavoritesOnly((value) => !value)}
+            className={`h-12 rounded-2xl px-5 text-sm font-black shadow-sm transition focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-pink-400 ${
+              showFavoritesOnly
+                ? "bg-pink-500 text-white hover:bg-pink-600"
+                : "bg-zinc-100 text-zinc-700 hover:bg-pink-100 dark:bg-zinc-800 dark:text-zinc-200 dark:hover:bg-zinc-700"
+            }`}
+            aria-pressed={showFavoritesOnly}
+          >
+            ♥ Favoritas
+          </button>
+        </div>
+
+        <div className="mt-4 flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center sm:justify-between">
+          <div className="flex flex-wrap gap-2">
+            <motion.label whileTap={{ scale: 0.97 }} className="inline-flex h-11 cursor-pointer items-center justify-center rounded-2xl bg-pink-500 px-5 text-sm font-black text-white shadow-lg shadow-pink-300/40 transition hover:bg-pink-600 dark:shadow-pink-950/40">
+              {uploading ? "Cargando..." : "+ Subir imagen"}
+              <input ref={fileInputRef} type="file" accept="image/jpeg,image/png,image/webp" onChange={handleUpload} className="hidden" disabled={uploading} />
+            </motion.label>
+
+            <button type="button" onClick={exportGallery} className="h-11 rounded-2xl bg-zinc-950 px-5 text-sm font-black text-white shadow-sm transition hover:bg-zinc-800 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-pink-400 dark:bg-white dark:text-zinc-950 dark:hover:bg-zinc-200">
+              Exportar JSON
+            </button>
+
+            <motion.label whileTap={{ scale: 0.97 }} className="inline-flex h-11 cursor-pointer items-center justify-center rounded-2xl bg-zinc-100 px-5 text-sm font-black text-zinc-700 shadow-sm transition hover:bg-pink-100 dark:bg-zinc-800 dark:text-zinc-200 dark:hover:bg-zinc-700">
+              {importing ? "Importando..." : "Importar JSON"}
+              <input ref={importInputRef} type="file" accept="application/json,.json" onChange={handleImport} className="hidden" disabled={importing} />
+            </motion.label>
+          </div>
+
+          <div className="flex items-center gap-3 text-sm font-semibold text-zinc-500 dark:text-zinc-400">
+            <span>{displayedImages.length} / {images.length} visibles</span>
+            {hasActiveFilters && (
+              <button type="button" onClick={clearFilters} className="rounded-full px-3 py-1 text-pink-600 transition hover:bg-pink-100 dark:text-pink-300 dark:hover:bg-pink-500/10">
+                Limpiar filtros
+              </button>
             )}
-            <input
-              type="file"
-              accept="image/*"
-              onChange={handleUpload}
-              className="hidden"
-              disabled={uploading}
-            />
-          </motion.label>
-        </div>
-        <div className="w-full flex justify-end">
-          <span className="text-zinc-500 dark:text-zinc-300 text-sm px-1 select-none">
-            {filtered.length} / {images.length}
-          </span>
+          </div>
         </div>
       </div>
-      <div className="w-full flex justify-center">
-        <motion.div layout className="w-full">
-          <DragDropContext onDragEnd={onDragEnd}>
-            <Droppable droppableId="gallery">
-              {(provided) => (
-                <div
-                  ref={provided.innerRef}
-                  {...provided.droppableProps}
-                  className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8 w-full"
-                >
-                  <AnimatePresence>
-                    {filtered.length === 0 ? (
-                      <motion.div
-                        className="col-span-full text-center py-10 text-zinc-400 dark:text-zinc-200"
-                        key="noresult"
-                        initial={{ opacity: 0, y: 16 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        exit={{ opacity: 0, y: 16 }}
-                      >
-                        Sin resultados 😢
-                      </motion.div>
-                    ) : (
-                      filtered.map((img, idx) => (
-                        <Draggable
-                          key={img.id}
-                          draggableId={img.id.toString()}
-                          index={idx}
-                        >
-                          {(draggableProvided, snapshot) => (
-                            <div
-                              ref={draggableProvided.innerRef}
-                              {...draggableProvided.draggableProps}
-                              {...draggableProvided.dragHandleProps}
-                              style={{
-                                ...draggableProvided.draggableProps.style,
-                                zIndex: snapshot.isDragging ? 30 : 1,
-                                cursor: snapshot.isDragging ? "grabbing" : "grab",
-                              }}
-                              onClick={() => openModal(img)}
-                            >
-                              <motion.div
-                                layout
-                                initial={{ opacity: 0, scale: 0.97, y: 18 }}
-                                animate={{
-                                  opacity: 1,
-                                  scale: snapshot.isDragging ? 1.06 : 1,
-                                  y: 0,
-                                  boxShadow: snapshot.isDragging
-                                    ? "0 6px 40px 0 #fbc2eb99"
-                                    : "0 2px 12px 0 #e9a9ea11",
-                                }}
-                                exit={{ opacity: 0, scale: 0.97, y: 18 }}
-                                transition={{ duration: 0.18 }}
-                              >
-                                <ImageCard image={img} />
-                              </motion.div>
-                            </div>
-                          )}
-                        </Draggable>
-                      ))
-                    )}
-                  </AnimatePresence>
-                  {provided.placeholder}
-                </div>
-              )}
-            </Droppable>
-          </DragDropContext>
-        </motion.div>
-      </div>
-      {selectedImage && (
-        <ImageModal
-          image={selectedImage}
-          isOpen={modalOpen}
-          onClose={closeModal}
-          onSave={saveChanges}
-          onDelete={deleteImage}
-        />
-      )}
+
+      <DragDropContext onDragEnd={onDragEnd}>
+        <Droppable droppableId="gallery">
+          {(provided) => (
+            <div ref={provided.innerRef} {...provided.droppableProps} className="grid grid-cols-1 gap-7 sm:grid-cols-2 xl:grid-cols-3">
+              <AnimatePresence>
+                {displayedImages.length === 0 ? (
+                  <motion.div key="empty-state" className="col-span-full rounded-[2rem] border border-dashed border-pink-300 bg-white/70 p-10 text-center shadow-lg shadow-pink-100/50 dark:border-pink-700/60 dark:bg-zinc-900/70 dark:shadow-black/30" initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 16 }}>
+                    <span className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-pink-100 text-3xl dark:bg-pink-500/15">{images.length === 0 ? "📸" : "🔎"}</span>
+                    <h2 className="text-2xl font-black text-zinc-950 dark:text-white">{images.length === 0 ? "Tu galería está vacía" : "No encontramos resultados"}</h2>
+                    <p className="mx-auto mt-3 max-w-md text-sm leading-6 text-zinc-500 dark:text-zinc-400">{images.length === 0 ? "Sube tu primera imagen para comenzar." : "Prueba limpiando filtros o usando otra palabra."}</p>
+                    {hasActiveFilters && <button type="button" onClick={clearFilters} className="mt-5 rounded-2xl bg-pink-500 px-5 py-2.5 text-sm font-black text-white transition hover:bg-pink-600">Limpiar filtros</button>}
+                  </motion.div>
+                ) : (
+                  displayedImages.map((image, index) => (
+                    <Draggable key={image.id} draggableId={image.id.toString()} index={index} isDragDisabled={sortMode !== "manual"}>
+                      {(draggableProvided, snapshot) => (
+                        <div ref={draggableProvided.innerRef} {...draggableProvided.draggableProps} {...draggableProvided.dragHandleProps} role="button" tabIndex={0} aria-label={`Abrir detalle de ${image.title}`} onKeyDown={(event) => handleCardKeyDown(event, image)} onClick={() => openModal(image)} className="focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-pink-400" style={{ ...draggableProvided.draggableProps.style, zIndex: snapshot.isDragging ? 30 : 1, cursor: sortMode === "manual" ? (snapshot.isDragging ? "grabbing" : "grab") : "pointer" }}>
+                          <motion.div layout initial={{ opacity: 0, scale: 0.97, y: 18 }} animate={{ opacity: 1, scale: snapshot.isDragging ? 1.04 : 1, y: 0 }} exit={{ opacity: 0, scale: 0.97, y: 18 }} transition={{ duration: 0.18 }}>
+                            <ImageCard image={image} onToggleFavorite={toggleFavorite} />
+                          </motion.div>
+                        </div>
+                      )}
+                    </Draggable>
+                  ))
+                )}
+              </AnimatePresence>
+              {provided.placeholder}
+            </div>
+          )}
+        </Droppable>
+      </DragDropContext>
+
+      {selectedImage && <ImageModal image={selectedImage} isOpen={modalOpen} onClose={closeModal} onSave={saveChanges} onDelete={deleteImage} fallbackCategory={DEFAULT_CATEGORY} />}
     </section>
+  );
+}
+
+function StatCard({ label, value }: { label: string; value: number }) {
+  return (
+    <div className="rounded-2xl border border-zinc-200 bg-white/80 p-4 shadow-sm dark:border-zinc-700 dark:bg-zinc-950/50">
+      <strong className="block text-3xl font-black text-pink-500">{value}</strong>
+      <span className="text-xs font-semibold text-zinc-500 dark:text-zinc-400">{label}</span>
+    </div>
   );
 }
