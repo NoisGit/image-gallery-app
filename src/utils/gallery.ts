@@ -110,23 +110,49 @@ export function normalizeImages(value: unknown): ImageData[] {
   }, []);
 }
 
-export function loadImagesFromStorage(storageKey: string, fallback: ImageData[]): StorageLoadResult {
+function isDemoGallery(images: ImageData[], fallback: ImageData[]): boolean {
+  if (images.length !== fallback.length) return false;
+
+  const fallbackIds = new Set(fallback.map((image) => image.id));
+  return images.every((image) => fallbackIds.has(image.id) && image.originalName?.endsWith(".jpg"));
+}
+
+export function loadImagesFromStorage(storageKey: string, fallback: ImageData[], demoVersion?: string): StorageLoadResult {
   if (typeof window === "undefined") {
     return { images: normalizeImages(fallback), recovered: false };
   }
 
+  const versionKey = `${storageKey}_demo_version`;
   const rawValue = window.localStorage.getItem(storageKey);
-  if (!rawValue) return { images: normalizeImages(fallback), recovered: false };
+  const savedDemoVersion = window.localStorage.getItem(versionKey);
+  const normalizedFallback = normalizeImages(fallback);
+
+  if (!rawValue) {
+    if (demoVersion) window.localStorage.setItem(versionKey, demoVersion);
+    return { images: normalizedFallback, recovered: false };
+  }
 
   try {
     const parsed = JSON.parse(rawValue) as unknown;
     if (!Array.isArray(parsed)) throw new Error("Invalid gallery data");
 
     const normalized = normalizeImages(parsed);
+
+    if (demoVersion && savedDemoVersion !== demoVersion && isDemoGallery(normalized, normalizedFallback)) {
+      window.localStorage.setItem(versionKey, demoVersion);
+      window.localStorage.setItem(storageKey, JSON.stringify(normalizedFallback));
+      return { images: normalizedFallback, recovered: true };
+    }
+
+    if (demoVersion && savedDemoVersion !== demoVersion) {
+      window.localStorage.setItem(versionKey, demoVersion);
+    }
+
     return { images: normalized, recovered: normalized.length !== parsed.length };
   } catch {
     window.localStorage.removeItem(storageKey);
-    return { images: normalizeImages(fallback), recovered: true };
+    if (demoVersion) window.localStorage.setItem(versionKey, demoVersion);
+    return { images: normalizedFallback, recovered: true };
   }
 }
 
