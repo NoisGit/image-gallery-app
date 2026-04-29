@@ -56,7 +56,7 @@ export const images: ImageData[] = [
     id: 4,
     title: "Bosque Encantado",
     description: "Verde profundo, naturaleza y ambiente de calma.",
-    url: "https://images.unsplash.com/photo-1465101178521-c1a9136a3fd7?auto=format&fit=crop&w=1200&q=80",
+    url: "https://images.unsplash.com/photo-1448375240586-882707db888b?auto=format&fit=crop&w=1200&q=80",
     category: "Naturaleza",
     originalName: "bosque-encantado.jpg",
     mimeType: "image/jpeg",
