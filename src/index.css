@@ -1,87 +1,90 @@
 @import "tailwindcss";
 
-html, body, #root {
-  height: 100%;
-  min-height: 100vh;
-  width: 100vw;
-  margin: 0 !important;
-  padding: 0 !important;
+* {
   box-sizing: border-box;
-  overflow-x: hidden;
-  max-width: 100vw;
+}
+
+html,
+body,
+#root {
+  min-height: 100%;
+  width: 100%;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  scroll-behavior: smooth;
 }
 
 body {
-  font-family: 'Inter', sans-serif;
-  background: #f5f5f5;
-  color: #18181b;
-  transition: background 0.3s, color 0.3s;
-  scrollbar-width: none;
-}
-
-.dark body {
-  background: #18181b;
-  color: #f5f5f5;
-}
-
-#root {
   min-height: 100vh;
-  width: 100vw;
+  overflow-x: hidden;
+  font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  background: #fff7fb;
+  color: #18181b;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
 }
 
-input[type="text"], input[type="file"], textarea {
-  border-radius: 0.5rem;
-  outline: none;
-  transition: border 0.2s, box-shadow 0.2s;
-  font-size: 1rem;
-  font-family: inherit;
-  box-sizing: border-box;
+button,
+input,
+textarea,
+select {
+  font: inherit;
 }
 
-input:focus, textarea:focus {
-  border-color: #e879f9 !important;
-  box-shadow: 0 0 0 2px #f9a8d4cc;
+button,
+label,
+select {
+  -webkit-tap-highlight-color: transparent;
 }
 
-input[type="file"] {
-  padding: 0;
-  background: none;
-  border: none;
+button:disabled,
+input:disabled {
+  cursor: not-allowed;
+  opacity: 0.65;
 }
 
-main {
-  scrollbar-width: thin;
-  scrollbar-color: #fbc2eb55 transparent;
+::selection {
+  background: #f9a8d4;
+  color: #3f1230;
 }
 
-main::-webkit-scrollbar {
-  width: 8px;
-  background: transparent;
-}
-main::-webkit-scrollbar-thumb {
-  background: #fbc2eb55;
-  border-radius: 10px;
-}
-
-body::-webkit-scrollbar, #root::-webkit-scrollbar {
-  width: 0 !important;
-  background: transparent !important;
-}
-
-button, label, select {
-  outline: none;
-  font-family: inherit;
-  transition: background 0.2s, box-shadow 0.2s, color 0.2s;
-  border-radius: 0.5rem;
-}
-
-/* Placeholder visible en dark */
 ::placeholder {
-  color: #cbd5e1;
+  color: #94a3b8;
   opacity: 1;
 }
 
 .dark ::placeholder {
-  color: #a3a3a3;
-  opacity: 1;
+  color: #71717a;
+}
+
+.gallery-clamp-2 {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  overflow: hidden;
+}
+
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #f9a8d4;
+  border: 3px solid transparent;
+  border-radius: 999px;
+  background-clip: content-box;
+}
+
+.dark ::-webkit-scrollbar-thumb {
+  background: #52525b;
+  border: 3px solid transparent;
+  background-clip: content-box;
 }
