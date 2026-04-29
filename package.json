@@ -7,6 +7,7 @@
     "dev": "vite",
     "build": "tsc -b && vite build",
     "lint": "eslint .",
+    "test": "node scripts/storage-recovery.test.cjs && node scripts/component-regression.test.cjs",
     "preview": "vite preview"
   },
   "dependencies": {

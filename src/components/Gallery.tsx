@@ -19,6 +19,7 @@ import {
   validateImageFile,
 } from "../utils/gallery";
 import type { Category, SortMode } from "../utils/gallery";
+import { compressImageFile } from "../utils/imageCompression";
 import ImageCard from "./ImageCard";
 import ImageModal from "./ImageModal";
 
@@ -28,15 +29,6 @@ type DeletedImage = {
   image: ImageData;
   index: number;
 };
-
-function readFileAsDataUrl(file: File): Promise<string> {
-  return new Promise((resolve, reject) => {
-    const reader = new FileReader();
-    reader.onload = () => resolve(reader.result as string);
-    reader.onerror = () => reject(new Error("No se pudo leer la imagen."));
-    reader.readAsDataURL(file);
-  });
-}
 
 export default function Gallery() {
   const [initialState] = useState(() => loadImagesFromStorage(STORAGE_KEY, initialImages));
@@ -205,27 +197,30 @@ export default function Gallery() {
       const validation = validateImageFile(file);
       if (!validation.ok) throw new Error(validation.message);
 
-      const dataUrl = await readFileAsDataUrl(file);
-      const isDuplicate = images.some((image) => image.url === dataUrl || image.originalName === file.name);
+      toast.loading("Optimizando imagen...", { id: "image-upload" });
+      const compressedImage = await compressImageFile(file);
+      const isDuplicate = images.some((image) => image.originalName === file.name || image.url === compressedImage.dataUrl);
       if (isDuplicate) throw new Error("Esta imagen ya existe en la galería.");
 
       const newImage: ImageData = {
         id: Date.now(),
         title: getTitleFromFileName(file.name),
         description: "Haz clic para editar la descripción.",
-        url: dataUrl,
+        url: compressedImage.dataUrl,
         category: "Personal",
         isFavorite: false,
         originalName: file.name,
-        size: file.size,
-        mimeType: file.type,
+        size: compressedImage.size,
+        mimeType: compressedImage.mimeType,
         uploadedAt: new Date().toISOString(),
+        width: compressedImage.width,
+        height: compressedImage.height,
       };
 
       setImages((currentImages) => [newImage, ...currentImages]);
-      toast.success("Imagen subida");
+      toast.success("Imagen optimizada y subida", { id: "image-upload" });
     } catch (error) {
-      toast.error(getErrorMessage(error));
+      toast.error(getErrorMessage(error), { id: "image-upload" });
     } finally {
       setUploading(false);
       resetUploadInput();
@@ -399,7 +394,7 @@ export default function Gallery() {
         <div className="mt-4 flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center sm:justify-between">
           <div className="flex flex-wrap gap-2">
             <motion.label whileTap={{ scale: 0.97 }} className="inline-flex h-11 cursor-pointer items-center justify-center rounded-2xl bg-pink-500 px-5 text-sm font-black text-white shadow-lg shadow-pink-300/40 transition hover:bg-pink-600 dark:shadow-pink-950/40">
-              {uploading ? "Cargando..." : "+ Subir imagen"}
+              {uploading ? "Optimizando..." : "+ Subir imagen"}
               <input ref={fileInputRef} type="file" accept="image/jpeg,image/png,image/webp" onChange={handleUpload} className="hidden" disabled={uploading} />
             </motion.label>
 

@@ -2,10 +2,19 @@
 
 Portfolio-ready image gallery built with **React 19**, **TypeScript**, **Vite**, **Tailwind CSS 4**, **Framer Motion**, drag and drop, and local browser persistence.
 
+## Preview
+
+![Light mode gallery preview](docs/preview/gallery-light.svg)
+
+![Dark mode gallery preview](docs/preview/gallery-dark.svg)
+
+![Image detail modal preview](docs/preview/gallery-modal.svg)
+
 ## Features
 
 - Responsive visual gallery with polished cards and animated interactions.
 - Upload images with file type and size validation.
+- Compress uploaded images before storing them locally.
 - Search by title, description, and category.
 - Filter by category and favorite images.
 - Sort by manual order, title, recent upload, or favorites.

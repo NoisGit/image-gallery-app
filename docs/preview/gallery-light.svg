@@ -1,0 +1,60 @@
+<svg width="1200" height="760" viewBox="0 0 1200 760" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="title desc">
+  <title id="title">Image Gallery App light preview</title>
+  <desc id="desc">Portfolio gallery preview with light theme, filters, cards and stats.</desc>
+  <rect width="1200" height="760" rx="36" fill="#FFF7FB"/>
+  <circle cx="1050" cy="120" r="210" fill="#F9A8D4" opacity="0.36"/>
+  <circle cx="150" cy="650" r="220" fill="#C4B5FD" opacity="0.34"/>
+  <rect x="56" y="42" width="1088" height="72" rx="24" fill="white" opacity="0.9"/>
+  <rect x="82" y="58" width="42" height="42" rx="14" fill="#EC4899"/>
+  <text x="142" y="87" fill="#18181B" font-family="Inter, Arial" font-size="25" font-weight="800">Image Gallery</text>
+  <rect x="990" y="58" width="116" height="42" rx="16" fill="#FCE7F3"/>
+  <text x="1020" y="85" fill="#BE185D" font-family="Inter, Arial" font-size="15" font-weight="800">Oscuro</text>
+  <rect x="72" y="150" width="1056" height="190" rx="34" fill="white" opacity="0.86"/>
+  <text x="110" y="204" fill="#BE185D" font-family="Inter, Arial" font-size="15" font-weight="900" letter-spacing="4">PORTFOLIO GALLERY</text>
+  <text x="110" y="258" fill="#18181B" font-family="Inter, Arial" font-size="42" font-weight="900">Galería visual con filtros</text>
+  <text x="110" y="296" fill="#52525B" font-family="Inter, Arial" font-size="20">Sube, edita, filtra y respalda imágenes con persistencia local.</text>
+  <rect x="764" y="195" width="96" height="86" rx="24" fill="#FFF1F2"/>
+  <rect x="886" y="195" width="96" height="86" rx="24" fill="#FFF1F2"/>
+  <rect x="1008" y="195" width="96" height="86" rx="24" fill="#FFF1F2"/>
+  <text x="798" y="235" fill="#EC4899" font-family="Inter, Arial" font-size="34" font-weight="900">9</text>
+  <text x="908" y="235" fill="#EC4899" font-family="Inter, Arial" font-size="34" font-weight="900">3</text>
+  <text x="1030" y="235" fill="#EC4899" font-family="Inter, Arial" font-size="34" font-weight="900">9</text>
+  <text x="790" y="262" fill="#71717A" font-family="Inter, Arial" font-size="14" font-weight="700">Imágenes</text>
+  <text x="902" y="262" fill="#71717A" font-family="Inter, Arial" font-size="14" font-weight="700">Favoritas</text>
+  <text x="1030" y="262" fill="#71717A" font-family="Inter, Arial" font-size="14" font-weight="700">Visibles</text>
+  <rect x="72" y="370" width="1056" height="92" rx="28" fill="white" opacity="0.9"/>
+  <rect x="104" y="394" width="390" height="44" rx="16" fill="#FAFAFA" stroke="#FBCFE8"/>
+  <text x="128" y="422" fill="#94A3B8" font-family="Inter, Arial" font-size="16">Buscar imágenes...</text>
+  <rect x="514" y="394" width="190" height="44" rx="16" fill="#FAFAFA" stroke="#E4E4E7"/>
+  <text x="538" y="422" fill="#52525B" font-family="Inter, Arial" font-size="16">Todas</text>
+  <rect x="724" y="394" width="190" height="44" rx="16" fill="#FAFAFA" stroke="#E4E4E7"/>
+  <text x="748" y="422" fill="#52525B" font-family="Inter, Arial" font-size="16">Orden manual</text>
+  <rect x="934" y="394" width="154" height="44" rx="16" fill="#EC4899"/>
+  <text x="972" y="422" fill="white" font-family="Inter, Arial" font-size="16" font-weight="800">Favoritas</text>
+  <g transform="translate(72 500)">
+    <rect width="324" height="188" rx="28" fill="#18181B"/>
+    <rect x="0" y="0" width="324" height="188" rx="28" fill="url(#cardA)"/>
+    <rect x="18" y="122" width="78" height="28" rx="14" fill="white" opacity="0.22"/>
+    <text x="22" y="141" fill="white" font-family="Inter, Arial" font-size="13" font-weight="800">Paisaje</text>
+    <text x="20" y="169" fill="white" font-family="Inter, Arial" font-size="22" font-weight="900">Montaña Rosa</text>
+  </g>
+  <g transform="translate(438 500)">
+    <rect width="324" height="188" rx="28" fill="#18181B"/>
+    <rect x="0" y="0" width="324" height="188" rx="28" fill="url(#cardB)"/>
+    <rect x="18" y="122" width="72" height="28" rx="14" fill="white" opacity="0.22"/>
+    <text x="22" y="141" fill="white" font-family="Inter, Arial" font-size="13" font-weight="800">Ciudad</text>
+    <text x="20" y="169" fill="white" font-family="Inter, Arial" font-size="22" font-weight="900">Ciudad Nocturna</text>
+  </g>
+  <g transform="translate(804 500)">
+    <rect width="324" height="188" rx="28" fill="#18181B"/>
+    <rect x="0" y="0" width="324" height="188" rx="28" fill="url(#cardC)"/>
+    <rect x="18" y="122" width="64" height="28" rx="14" fill="white" opacity="0.22"/>
+    <text x="22" y="141" fill="white" font-family="Inter, Arial" font-size="13" font-weight="800">Viajes</text>
+    <text x="20" y="169" fill="white" font-family="Inter, Arial" font-size="22" font-weight="900">Playa Tranquila</text>
+  </g>
+  <defs>
+    <linearGradient id="cardA" x1="0" y1="0" x2="324" y2="188"><stop stop-color="#F9A8D4"/><stop offset="1" stop-color="#6366F1"/></linearGradient>
+    <linearGradient id="cardB" x1="0" y1="0" x2="324" y2="188"><stop stop-color="#111827"/><stop offset="1" stop-color="#EC4899"/></linearGradient>
+    <linearGradient id="cardC" x1="0" y1="0" x2="324" y2="188"><stop stop-color="#38BDF8"/><stop offset="1" stop-color="#F97316"/></linearGradient>
+  </defs>
+</svg>
