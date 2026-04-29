@@ -2,6 +2,12 @@
 
 Portfolio-ready image gallery built with **React 19**, **TypeScript**, **Vite**, **Tailwind CSS 4**, **Framer Motion**, drag and drop, and local browser persistence.
 
+## Live Site
+
+```text
+https://noisgit.github.io/image-gallery-app/
+```
+
 ## Preview
 
 ![Light mode gallery preview](docs/preview/gallery-light.svg)
@@ -24,8 +30,8 @@ Portfolio-ready image gallery built with **React 19**, **TypeScript**, **Vite**,
 - Import and export gallery backups as JSON.
 - Recover safely if localStorage contains invalid data.
 - Persist light and dark mode.
-- Run lint and build checks with GitHub Actions.
-- Deploy from `develop` with GitHub Pages Actions.
+- Run lint, tests and build checks with GitHub Actions.
+- Deploy from `main` with GitHub Pages Actions.
 
 ## Tech Stack
 
@@ -42,7 +48,7 @@ Portfolio-ready image gallery built with **React 19**, **TypeScript**, **Vite**,
 
 ```text
 main      -> production-ready branch
-develop   -> integration branch and GitHub Pages deploy source
+develop   -> integration branch
 feature/* -> feature work branches
 ```
 
@@ -54,12 +60,12 @@ feature/* -> develop -> main
 
 ## Deployment
 
-GitHub Pages deploy is configured in `.github/workflows/deploy.yml` and runs on every push to `develop`.
+GitHub Pages deploy is configured in `.github/workflows/deploy.yml` and runs on every push to `main`.
 
-Expected site after the first successful deploy:
+The app is built with the repository base path:
 
-```text
-https://noisgit.github.io/image-gallery-app/
+```bash
+npm run build -- --base=/image-gallery-app/
 ```
 
 If Pages is not enabled yet, set the repository Pages source to **GitHub Actions**.
@@ -70,6 +76,7 @@ If Pages is not enabled yet, set the repository Pages source to **GitHub Actions
 npm install
 npm run dev
 npm run lint
+npm test
 npm run build
 ```
 
