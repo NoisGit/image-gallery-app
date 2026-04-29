@@ -13,16 +13,16 @@ export default function App() {
       className={`relative flex min-h-screen w-full flex-col overflow-x-hidden transition-colors duration-300 ${
         theme === "dark"
           ? "bg-zinc-950 text-zinc-100"
-          : "bg-[radial-gradient(circle_at_top_left,#fce7f3_0,#ffffff_34%,#f5f3ff_68%,#fff7ed_100%)] text-zinc-900"
+          : "bg-[radial-gradient(circle_at_top_left,#ffe4f1_0,#f4e7ff_42%,#fde7f3_74%,#f7d9e8_100%)] text-zinc-900"
       }`}
     >
       <div className="pointer-events-none fixed inset-0 -z-10 overflow-hidden">
-        <div className="absolute left-1/2 top-0 h-96 w-96 -translate-x-1/2 rounded-full bg-pink-300/30 blur-3xl dark:bg-pink-700/20" />
-        <div className="absolute bottom-10 right-0 h-96 w-96 rounded-full bg-violet-300/25 blur-3xl dark:bg-violet-700/20" />
+        <div className="absolute -left-24 top-20 h-80 w-80 rounded-full bg-pink-400/25 blur-3xl dark:bg-pink-700/20 sm:left-1/2 sm:top-0 sm:h-96 sm:w-96 sm:-translate-x-1/2" />
+        <div className="absolute bottom-10 right-[-6rem] h-96 w-96 rounded-full bg-violet-400/25 blur-3xl dark:bg-violet-700/20 sm:right-0" />
       </div>
 
       <Header />
-      <main className="flex flex-1 justify-center px-4 py-8 sm:px-6 lg:px-8">
+      <main className="flex flex-1 justify-center px-3 py-5 sm:px-6 sm:py-8 lg:px-8">
         <Gallery />
       </main>
       <Footer />

@@ -313,7 +313,7 @@ export default function Gallery() {
   return (
     <section className="w-full max-w-7xl">
       <motion.div
-        className="relative mb-8 overflow-hidden rounded-[2rem] border border-white/70 bg-white/75 p-6 shadow-2xl shadow-pink-200/40 backdrop-blur-xl dark:border-zinc-800 dark:bg-zinc-900/80 dark:shadow-black/40 sm:p-8"
+        className="relative mb-5 overflow-hidden rounded-[1.75rem] border border-white/55 bg-white/45 p-5 shadow-2xl shadow-pink-300/25 backdrop-blur-2xl dark:border-zinc-800 dark:bg-zinc-900/80 dark:shadow-black/40 sm:mb-8 sm:rounded-[2rem] sm:bg-white/70 sm:p-8"
         initial={{ opacity: 0, y: 18 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.35 }}
@@ -321,20 +321,20 @@ export default function Gallery() {
         <div className="pointer-events-none absolute -right-24 -top-24 h-56 w-56 rounded-full bg-pink-300/40 blur-3xl dark:bg-pink-700/30" />
         <div className="pointer-events-none absolute -bottom-24 -left-24 h-56 w-56 rounded-full bg-violet-300/40 blur-3xl dark:bg-violet-700/30" />
 
-        <div className="relative grid gap-6 lg:grid-cols-[1.05fr_0.95fr] lg:items-end">
+        <div className="relative grid gap-5 lg:grid-cols-[1.05fr_0.95fr] lg:items-end">
           <div>
-            <span className="mb-3 inline-flex rounded-full bg-pink-100 px-4 py-1.5 text-xs font-black uppercase tracking-[0.2em] text-pink-700 dark:bg-pink-500/15 dark:text-pink-200">
+            <span className="mb-3 inline-flex rounded-full bg-pink-100/85 px-4 py-1.5 text-xs font-black uppercase tracking-[0.2em] text-pink-700 dark:bg-pink-500/15 dark:text-pink-200">
               Portfolio gallery
             </span>
-            <h1 className="max-w-3xl text-4xl font-black tracking-tight text-zinc-950 dark:text-white sm:text-5xl">
+            <h1 className="max-w-3xl text-3xl font-black tracking-tight text-zinc-950 dark:text-white sm:text-5xl">
               Galería visual con filtros, favoritos y persistencia local.
             </h1>
-            <p className="mt-4 max-w-2xl text-base leading-7 text-zinc-600 dark:text-zinc-300">
+            <p className="mt-4 max-w-2xl text-sm leading-6 text-zinc-600 dark:text-zinc-300 sm:text-base sm:leading-7">
               Sube imágenes, ordénalas, edita sus datos, respáldalas en JSON y mantén una experiencia cuidada para escritorio y mobile.
             </p>
           </div>
 
-          <div className="grid grid-cols-3 gap-3 text-center">
+          <div className="grid grid-cols-3 gap-2 text-center sm:gap-3">
             <StatCard label="Imágenes" value={images.length} />
             <StatCard label="Favoritas" value={totalFavorites} />
             <StatCard label="Visibles" value={displayedImages.length} />
@@ -342,21 +342,21 @@ export default function Gallery() {
         </div>
       </motion.div>
 
-      <div className="mb-8 rounded-[1.5rem] border border-white/70 bg-white/80 p-4 shadow-xl shadow-pink-100/50 backdrop-blur dark:border-zinc-800 dark:bg-zinc-900/75 dark:shadow-black/30 sm:p-5">
+      <div className="mb-6 rounded-[1.5rem] border border-white/55 bg-white/45 p-3 shadow-xl shadow-pink-300/20 backdrop-blur-2xl dark:border-zinc-800 dark:bg-zinc-900/75 dark:shadow-black/30 sm:mb-8 sm:bg-white/75 sm:p-5">
         <div className="grid gap-3 lg:grid-cols-[1.3fr_0.8fr_0.8fr_auto]">
           <input
             type="text"
             placeholder="Buscar por título, descripción o categoría..."
             value={search}
             onChange={(event) => setSearch(event.target.value)}
-            className="h-12 w-full rounded-2xl border border-zinc-200 bg-white px-4 text-zinc-900 shadow-sm transition placeholder:text-zinc-400 focus:border-pink-400 focus:outline-none focus:ring-4 focus:ring-pink-200/70 dark:border-zinc-700 dark:bg-zinc-950 dark:text-zinc-100 dark:placeholder:text-zinc-500 dark:focus:ring-pink-500/20"
+            className="h-12 w-full rounded-2xl border border-white/70 bg-white/75 px-4 text-zinc-900 shadow-sm transition placeholder:text-zinc-400 focus:border-pink-400 focus:outline-none focus:ring-4 focus:ring-pink-200/70 dark:border-zinc-700 dark:bg-zinc-950 dark:text-zinc-100 dark:placeholder:text-zinc-500 dark:focus:ring-pink-500/20"
             aria-label="Buscar imágenes"
           />
 
           <select
             value={categoryFilter}
             onChange={(event) => setCategoryFilter(event.target.value as Category | "all")}
-            className="h-12 w-full rounded-2xl border border-zinc-200 bg-white px-4 text-zinc-900 shadow-sm transition focus:border-pink-400 focus:outline-none focus:ring-4 focus:ring-pink-200/70 dark:border-zinc-700 dark:bg-zinc-950 dark:text-zinc-100 dark:focus:ring-pink-500/20"
+            className="h-12 w-full rounded-2xl border border-white/70 bg-white/75 px-4 text-zinc-900 shadow-sm transition focus:border-pink-400 focus:outline-none focus:ring-4 focus:ring-pink-200/70 dark:border-zinc-700 dark:bg-zinc-950 dark:text-zinc-100 dark:focus:ring-pink-500/20"
             aria-label="Filtrar por categoría"
           >
             <option value="all">Todas las categorías</option>
@@ -368,7 +368,7 @@ export default function Gallery() {
           <select
             value={sortMode}
             onChange={(event) => setSortMode(event.target.value as SortMode)}
-            className="h-12 w-full rounded-2xl border border-zinc-200 bg-white px-4 text-zinc-900 shadow-sm transition focus:border-pink-400 focus:outline-none focus:ring-4 focus:ring-pink-200/70 dark:border-zinc-700 dark:bg-zinc-950 dark:text-zinc-100 dark:focus:ring-pink-500/20"
+            className="h-12 w-full rounded-2xl border border-white/70 bg-white/75 px-4 text-zinc-900 shadow-sm transition focus:border-pink-400 focus:outline-none focus:ring-4 focus:ring-pink-200/70 dark:border-zinc-700 dark:bg-zinc-950 dark:text-zinc-100 dark:focus:ring-pink-500/20"
             aria-label="Ordenar imágenes"
           >
             <option value="manual">Orden manual</option>
@@ -383,7 +383,7 @@ export default function Gallery() {
             className={`h-12 rounded-2xl px-5 text-sm font-black shadow-sm transition focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-pink-400 ${
               showFavoritesOnly
                 ? "bg-pink-500 text-white hover:bg-pink-600"
-                : "bg-zinc-100 text-zinc-700 hover:bg-pink-100 dark:bg-zinc-800 dark:text-zinc-200 dark:hover:bg-zinc-700"
+                : "bg-white/60 text-zinc-700 hover:bg-pink-100 dark:bg-zinc-800 dark:text-zinc-200 dark:hover:bg-zinc-700"
             }`}
             aria-pressed={showFavoritesOnly}
           >
@@ -402,7 +402,7 @@ export default function Gallery() {
               Exportar JSON
             </button>
 
-            <motion.label whileTap={{ scale: 0.97 }} className="inline-flex h-11 cursor-pointer items-center justify-center rounded-2xl bg-zinc-100 px-5 text-sm font-black text-zinc-700 shadow-sm transition hover:bg-pink-100 dark:bg-zinc-800 dark:text-zinc-200 dark:hover:bg-zinc-700">
+            <motion.label whileTap={{ scale: 0.97 }} className="inline-flex h-11 cursor-pointer items-center justify-center rounded-2xl bg-white/60 px-5 text-sm font-black text-zinc-700 shadow-sm transition hover:bg-pink-100 dark:bg-zinc-800 dark:text-zinc-200 dark:hover:bg-zinc-700">
               {importing ? "Importando..." : "Importar JSON"}
               <input ref={importInputRef} type="file" accept="application/json,.json" onChange={handleImport} className="hidden" disabled={importing} />
             </motion.label>
@@ -422,10 +422,10 @@ export default function Gallery() {
       <DragDropContext onDragEnd={onDragEnd}>
         <Droppable droppableId="gallery">
           {(provided) => (
-            <div ref={provided.innerRef} {...provided.droppableProps} className="grid grid-cols-1 gap-7 sm:grid-cols-2 xl:grid-cols-3">
+            <div ref={provided.innerRef} {...provided.droppableProps} className="grid grid-cols-1 gap-5 sm:grid-cols-2 sm:gap-7 xl:grid-cols-3">
               <AnimatePresence>
                 {displayedImages.length === 0 ? (
-                  <motion.div key="empty-state" className="col-span-full rounded-[2rem] border border-dashed border-pink-300 bg-white/70 p-10 text-center shadow-lg shadow-pink-100/50 dark:border-pink-700/60 dark:bg-zinc-900/70 dark:shadow-black/30" initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 16 }}>
+                  <motion.div key="empty-state" className="col-span-full rounded-[2rem] border border-dashed border-pink-300 bg-white/55 p-8 text-center shadow-lg shadow-pink-100/50 backdrop-blur-2xl dark:border-pink-700/60 dark:bg-zinc-900/70 dark:shadow-black/30 sm:p-10" initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 16 }}>
                     <span className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-pink-100 text-3xl dark:bg-pink-500/15">{images.length === 0 ? "📸" : "🔎"}</span>
                     <h2 className="text-2xl font-black text-zinc-950 dark:text-white">{images.length === 0 ? "Tu galería está vacía" : "No encontramos resultados"}</h2>
                     <p className="mx-auto mt-3 max-w-md text-sm leading-6 text-zinc-500 dark:text-zinc-400">{images.length === 0 ? "Sube tu primera imagen para comenzar." : "Prueba limpiando filtros o usando otra palabra."}</p>
@@ -458,9 +458,9 @@ export default function Gallery() {
 
 function StatCard({ label, value }: { label: string; value: number }) {
   return (
-    <div className="rounded-2xl border border-zinc-200 bg-white/80 p-4 shadow-sm dark:border-zinc-700 dark:bg-zinc-950/50">
-      <strong className="block text-3xl font-black text-pink-500">{value}</strong>
-      <span className="text-xs font-semibold text-zinc-500 dark:text-zinc-400">{label}</span>
+    <div className="rounded-2xl border border-white/60 bg-white/55 p-3 shadow-sm backdrop-blur-xl dark:border-zinc-700 dark:bg-zinc-950/50 sm:p-4">
+      <strong className="block text-2xl font-black text-pink-500 sm:text-3xl">{value}</strong>
+      <span className="text-[0.7rem] font-semibold text-zinc-500 dark:text-zinc-400 sm:text-xs">{label}</span>
     </div>
   );
 }
